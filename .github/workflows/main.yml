@@ -147,7 +147,8 @@ jobs:
           sudo docker compose -f docker-compose.production.yml up -d 
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate 
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic 
-          sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/ 
+          sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_csv_files
   send_message: 
     runs-on: ubuntu-latest 
     needs: deploy 
@@ -157,4 +158,4 @@ jobs:
       with: 
         to: ${{ secrets.TELEGRAM_TO }} 
         token: ${{ secrets.TELEGRAM_TOKEN }} 
-        message: Деплой Kittygram успешно выполнен!
+        message: Деплой Foodgram успешно выполнен!
