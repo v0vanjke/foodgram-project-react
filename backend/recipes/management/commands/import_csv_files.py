@@ -15,10 +15,10 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         for model, csv_f in TABLES.items():
             workdir = os.path.abspath(os.path.join(
-                f'{settings.BASE_DIR}', '')
+                f'{settings.BASE_DIR.parrent}', '')
             )
             with open(
-                    workdir + '/foodgram/data/ingredients.csv',
+                    workdir + '/data/ingredients.csv',
                     newline='',
                     encoding='utf-8',
             ) as csv_file:
