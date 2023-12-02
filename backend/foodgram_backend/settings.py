@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-4!@v05tn&ita-*kyffq%1&ivaqdpyg%(fu((tfm@ws%5yh5plo')
 
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ALLOWED_HOSTS = ['158.160.74.12', '127.0.0.1', 'localhost', 'foodgram1987.ddns.net']
 
