@@ -18,7 +18,7 @@ class Command(BaseCommand):
                 f'{settings.BASE_DIR}', '')
             )
             with open(
-                    workdir + 'data/ingredients.csv',
+                    workdir + '/data/ingredients.csv',
                     newline='',
                     encoding='utf-8',
             ) as csv_file:
