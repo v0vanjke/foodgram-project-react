@@ -11,7 +11,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-4!@v05tn&ita-*kyffq%1&ivaq
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['158.160.74.12', '127.0.0.1', 'localhost', 'foodgram1987.ddns.net']
+# ALLOWED_HOSTS = ['158.160.74.12', '127.0.0.1', 'localhost', 'foodgram1987.ddns.net']
+ALLOWED_HOSTS = []
+
 
 AUTH_USER_MODEL = 'users.User'
 
