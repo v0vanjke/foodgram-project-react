@@ -35,3 +35,5 @@ urllib3==2.1.0
 webcolors==1.13
 django-cors-headers==3.13.0
 psycopg2-binary==2.9.3
+python-dotenv==1.0.0
+python-decouple==3.8
