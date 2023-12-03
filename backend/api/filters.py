@@ -27,12 +27,12 @@ class RecipeFilter(rest_framework.FilterSet):
     is_favorited = django_filters.ChoiceFilter(
         method='filter_is_favorited',
         label='В избранном',
-        choices=[(0, '0'), (1, '1')],
+        choices=[(0, 'Нет'), (1, 'Да')],
     )
     is_in_shopping_cart = django_filters.ChoiceFilter(
         method='filter_is_in_shopping_cart',
         label='В корзине покупок',
-        choices=[(0, '0'), (1, '1')],
+        choices=[(0, 'Нет'), (1, 'Да')],
     )
 
     def filter_is_favorited(self, queryset, name, value):
