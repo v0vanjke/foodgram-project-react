@@ -2,10 +2,20 @@ import django_filters
 from django.db.models import Q
 from django_filters import rest_framework
 from rest_framework import exceptions
+from django import forms
 
 from recipes.models import Ingredient, Recipe
 
 VALUE = [0, 1]
+
+
+class NonValidatingTagChoiceField(forms.MultipleChoiceField):
+    def validate(self, value):
+        pass
+
+
+class NonValidatingTagFilter(django_filters.AllValuesMultipleFilter):
+    field_class = NonValidatingTagChoiceField
 
 
 class RecipeFilter(rest_framework.FilterSet):
@@ -14,7 +24,7 @@ class RecipeFilter(rest_framework.FilterSet):
     По Тегам, Автору, Избранным рецептам и рецептам в Корзине покупок.
     """
 
-    tags = django_filters.AllValuesMultipleFilter(field_name='tags__slug')
+    tags = NonValidatingTagFilter(field_name='tags__slug')
     author = django_filters.NumberFilter(field_name='author__id')
     is_favorited = django_filters.NumberFilter(
         method='filter_is_favorited',
