@@ -16,23 +16,13 @@ class RecipeFilter(rest_framework.FilterSet):
 
     tags = django_filters.AllValuesMultipleFilter(field_name='tags__slug')
     author = django_filters.NumberFilter(field_name='author__id')
-    # is_favorited = django_filters.NumberFilter(
-    #     method='filter_is_favorited',
-    #     label='В избранном',
-    # )
-    # is_in_shopping_cart = django_filters.NumberFilter(
-    #     method='filter_is_in_shopping_cart',
-    #     label='В корзине покупок',
-    # )
-    is_favorited = django_filters.ChoiceFilter(
+    is_favorited = django_filters.NumberFilter(
         method='filter_is_favorited',
         label='В избранном',
-        choices=[(0, '0'), (1, '1')],
     )
-    is_in_shopping_cart = django_filters.ChoiceFilter(
+    is_in_shopping_cart = django_filters.NumberFilter(
         method='filter_is_in_shopping_cart',
         label='В корзине покупок',
-        choices=[(0, '0'), (1, '1')],
     )
 
     def filter_is_favorited(self, queryset, name, value):
