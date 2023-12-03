@@ -17,10 +17,7 @@ from api.serializers import (IngredientSerializer, RecipeGetSerializer,
 from recipes.models import (Cart, Favorites, Ingredient, Recipe,
                             RecipeIngredient, Tag)
 from recipes.serializers import ShortRecipeSerializer
-# from users.permissions import IsAuthorOrReadOnly
-from rest_framework.permissions import (
-    IsAuthenticated,
-)
+from users.permissions import IsAuthorOrReadOnly
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -34,7 +31,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = RecipeFilter
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
