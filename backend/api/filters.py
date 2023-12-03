@@ -14,9 +14,12 @@ class RecipeFilter(rest_framework.FilterSet):
     По Тегам, Автору, Избранным рецептам и рецептам в Корзине покупок.
     """
 
-    tags = django_filters.AllValuesMultipleFilter(field_name='tags__slug')
+    tags = django_filters.AllValuesMultipleFilter(
+        field_name='tags__slug', verbose_name='Тег',
+    )
     author = django_filters.NumberFilter(field_name='author__id')
-    is_favorited = django_filters.NumberFilter(method='filter_is_favorited')
+    is_favorited = django_filters.NumberFilter(method='filter_is_favorited',
+                                               verbose_name='В избранном')
     is_in_shopping_cart = django_filters.NumberFilter(
         method='filter_is_in_shopping_cart',
     )
