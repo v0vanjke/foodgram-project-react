@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from decouple import config
+from decouple import config, Csv
 from pathlib import Path
 
 load_dotenv()
@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 #
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(', ')
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())
 
 AUTH_USER_MODEL = 'users.User'
 
