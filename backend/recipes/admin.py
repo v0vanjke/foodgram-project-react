@@ -6,13 +6,17 @@ from recipes.models import (Cart, Favorites, Ingredient, Recipe,
 from users.models import User
 
 
+class PaginatedAdminPanel(admin.ModelAdmin):
+    list_per_page = 20
+
+
 class IngredientsInline(admin.TabularInline):
     model = RecipeIngredient
     extra = 0
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(PaginatedAdminPanel):
     list_display = (
         'username',
         'email',
@@ -33,7 +37,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 @admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
+class RecipeAdmin(PaginatedAdminPanel):
     list_display = (
         'name',
         'author',
@@ -55,7 +59,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 @admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
+class IngredientAdmin(PaginatedAdminPanel):
     list_display = (
         'name',
         'measurement_unit',
@@ -65,7 +69,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(PaginatedAdminPanel):
     list_display = (
         'name',
         'color',
@@ -76,7 +80,7 @@ class TagAdmin(admin.ModelAdmin):
 
 
 @admin.register(Favorites)
-class FavoritesAdmin(admin.ModelAdmin):
+class FavoritesAdmin(PaginatedAdminPanel):
     list_display = (
         'recipe',
         'user',
@@ -86,7 +90,7 @@ class FavoritesAdmin(admin.ModelAdmin):
 
 
 @admin.register(RecipeIngredient)
-class RecipeIngredientAdmin(admin.ModelAdmin):
+class RecipeIngredientAdmin(PaginatedAdminPanel):
     list_display = (
         'recipe',
         'ingredient',
@@ -97,7 +101,7 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 
 
 @admin.register(RecipeTag)
-class RecipeTagAdmin(admin.ModelAdmin):
+class RecipeTagAdmin(PaginatedAdminPanel):
     list_display = (
         'recipe',
         'tag',
@@ -107,7 +111,7 @@ class RecipeTagAdmin(admin.ModelAdmin):
 
 
 @admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
+class CartAdmin(PaginatedAdminPanel):
     list_display = (
         'user',
         'recipe',
