@@ -1,12 +1,21 @@
 import webcolors
 from django.core.validators import MinValueValidator
-from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
-
+from django.core.files.base import ContentFile
 from recipes.models import (
     Ingredient, Recipe, RecipeIngredient, Tag,
 )
 from users.serializers import UserSerializer
+import base64
+
+
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+        return super().to_internal_value(data)
 
 
 class Hex2NameColor(serializers.Field):
@@ -82,10 +91,10 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         source='recipeingredient',
         read_only=True,
     )
-    image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = UserSerializer()
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
