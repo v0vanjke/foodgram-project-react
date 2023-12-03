@@ -14,7 +14,7 @@ class CreateUserSerializer(UserCreateSerializer):
             RegexValidator(
                 regex=r'^[\w.@+-]+$',
                 message='Имя пользователя должно соответствовать '
-                        'паттерну ^[\w.@+-]+\z.'
+                        r'паттерну ^[\w.@+-]+\z.'
             )
         ]
     )
