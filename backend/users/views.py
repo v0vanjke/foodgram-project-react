@@ -26,7 +26,7 @@ class CustomUserViewSet(UserViewSet):
         methods=['GET'],
         url_path='me',
         detail=False,
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
     )
     def me(self, request):
         serializer = self.get_serializer(self.request.user)
