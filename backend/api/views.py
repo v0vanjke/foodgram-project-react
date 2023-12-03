@@ -17,10 +17,11 @@ from api.serializers import (IngredientSerializer, RecipeGetSerializer,
 from recipes.models import (Cart, Favorites, Ingredient, Recipe,
                             RecipeIngredient, Tag)
 from recipes.serializers import ShortRecipeSerializer
-from users.permissions import IsAuthorOrReadOnly
+# from users.permissions import IsAuthorOrReadOnly
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly
+    IsAuthenticated,
 )
+
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет с реализацией добавления/удаления.
