@@ -27,12 +27,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     а также возможностью выгрузить Список покупок.
     """
 
-    queryset = (Recipe.objects.all().order_by("id"))
+    queryset = (Recipe.objects.all().order_by('-pub_date'))
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = RecipeFilter
     permission_classes = (IsAuthorOrReadOnly,)
-    ordering = ['pub_date']
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
