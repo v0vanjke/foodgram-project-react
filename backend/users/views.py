@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
-from rest_framework import status
+# from djoser.views import UserViewSet
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -14,7 +14,7 @@ from users.serializers import (
 )
 
 
-class CustomUserViewSet(UserViewSet):
+class CustomUserViewSet(viewsets.ModelViewSet):
     """Вьюсет с обработкой url содержащих me, subscribe, subscriptions."""
 
     queryset = User.objects.all()
