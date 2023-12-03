@@ -16,6 +16,7 @@ class Command(BaseCommand):
         for model, csv_f in TABLES.items():
             with open(
                     f'{settings.BASE_DIR}/static/data/{csv_f}', newline='',
+                    encoding='utf-8'
             ) as csv_file:
                 if csv_f == 'ingredients.csv':
                     reader = csv.DictReader(
