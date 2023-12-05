@@ -67,7 +67,9 @@ class RecipeAdmin(PaginatedAdminPanel):
         return "\n".join([tag.recipe for tag in obj.tags.all()])
 
     def get_ingredients(self, obj):
-        return "\n".join([ingredient.recipe for ingredient in obj.ingredients.all()])
+        return "\n".join(
+            [ingredient.recipe for ingredient in obj.ingredients.all()]
+        )
 
 
 @admin.register(Ingredient)

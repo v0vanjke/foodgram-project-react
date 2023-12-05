@@ -1,5 +1,3 @@
-from django.core.validators import RegexValidator
-
 from djoser.serializers import UserCreateSerializer
 from recipes.serializers import ShortRecipeSerializer
 from rest_framework import serializers
