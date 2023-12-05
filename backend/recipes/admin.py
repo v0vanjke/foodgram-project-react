@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 
 from recipes.models import (Cart, Favorites, Ingredient, Recipe,
                             RecipeIngredient, RecipeTag, Tag)
-from users.models import User
+from users.models import User, Follow
 
 
 class PaginatedAdminPanel(admin.ModelAdmin):
@@ -129,6 +129,16 @@ class CartAdmin(PaginatedAdminPanel):
     list_display = (
         'user',
         'recipe',
+    )
+    search_fields = ('user',)
+    ordering = ('user',)
+
+
+@admin.register(Follow)
+class FollowAdmin(PaginatedAdminPanel):
+    list_display = (
+        'user',
+        'author',
     )
     search_fields = ('user',)
     ordering = ('user',)
