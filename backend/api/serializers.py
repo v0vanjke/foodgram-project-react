@@ -1,38 +1,10 @@
-import webcolors
 from django.core.validators import MinValueValidator
+
+from api.fields import Base64ImageField, Hex2NameColor
+from foodgram_backend.constants import MIN_COOKING_TIME_VALUE
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import exceptions, serializers
-from django.core.files.base import ContentFile
-from recipes.models import (
-    Ingredient, Recipe, RecipeIngredient, Tag,
-)
 from users.serializers import UserSerializer
-import base64
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-        return super().to_internal_value(data)
-
-
-class Hex2NameColor(serializers.Field):
-    """Класс для нового типа поля в HEX-формате.
-
-    Используется в поле Color сериализатора Recipe.
-    """
-
-    def to_representation(self, value):
-        return value
-
-    def to_internal_value(self, data):
-        try:
-            data = webcolors.hex_to_name(data)
-        except ValueError:
-            raise serializers.ValidationError('Для этого цвета нет имени')
-        return data
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -73,7 +45,7 @@ class RecipeIngredientPostSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(
         validators=(
             MinValueValidator(
-                limit_value=0,
+                limit_value=MIN_COOKING_TIME_VALUE,
                 message='Количество ингредиента не может быть меньше 0',
             ),
         )
@@ -111,17 +83,17 @@ class RecipeGetSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
 
-    def get_is_favorited(self, recipe):
-        user = self.context.get('view').request.user
-        if user.is_anonymous:
+    def get_is_favorited(self, object):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
             return False
-        return user.favorites.filter(recipe=recipe).exists()
+        return request.user.favorites.filter(recipe=object).exists()
 
-    def get_is_in_shopping_cart(self, recipe):
-        user = self.context.get('view').request.user
-        if user.is_anonymous:
+    def get_is_in_shopping_cart(self, object):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
             return False
-        return user.cart.filter(recipe=recipe).exists()
+        return request.user.cart.filter(recipe=object).exists()
 
 
 class RecipePostSerializer(serializers.ModelSerializer):
@@ -138,7 +110,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     cooking_time = serializers.IntegerField(
         validators=(
             MinValueValidator(
-                limit_value=1,
+                limit_value=MIN_COOKING_TIME_VALUE,
                 message='Время приготовления не может быть меньше 0 минут',
             ),
         )
@@ -206,18 +178,23 @@ class RecipePostSerializer(serializers.ModelSerializer):
             return False
         return user.cart.filter(recipe=recipe).exists()
 
+    def add_ingredients(self, ingredients, recipe):
+        RecipeIngredient.objects.bulk_create([
+            RecipeIngredient(
+                ingredient=ingredient.get('id'),
+                recipe=recipe,
+                amount=ingredient.get('amount')
+            )
+            for ingredient in ingredients
+        ])
+
     def create(self, validated_data):
         author = self.context['request'].user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('recipeingredient')
         recipe = Recipe.objects.create(author=author, **validated_data)
         recipe.tags.set(tags)
-        for ingredient in ingredients:
-            amount = ingredient.get('amount')
-            base_ingredient = ingredient.get('id')
-            RecipeIngredient.objects.create(
-                recipe=recipe, ingredient=base_ingredient, amount=amount,
-            )
+        self.add_ingredients(ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
@@ -229,38 +206,23 @@ class RecipePostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'tags': ['Отсутствует в переданных данных']}
             )
-        ingredients = validated_data.pop('recipeingredient')
-        RecipeIngredient.objects.filter(recipe=instance).delete()
-        tags = validated_data.pop('tags')
+        recipe = instance
+        RecipeIngredient.objects.filter(recipe=recipe).delete()
         instance.tags.clear()
+        instance.ingredients.clear()
+        tags = validated_data.get('tags')
         instance.tags.set(tags)
+        ingredients = validated_data.get('recipeingredient')
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
         instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time)
-        for ingredient in ingredients:
-            amount = ingredient.get('amount')
-            base_ingredient = ingredient.get('id')
-            if (RecipeIngredient.objects.filter(
-                    recipe=instance, ingredient=base_ingredient).exists()):
-                raise serializers.ValidationError(
-                    {'errors': 'нельзя добавить два одинаковых ингредиента'}
-                )
-            RecipeIngredient.objects.create(
-                recipe=instance, ingredient=base_ingredient, amount=amount,
-            )
+            'cooking_time', instance.cooking_time,
+        )
+        self.add_ingredients(ingredients, recipe)
         instance.save()
         return instance
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['tags'] = [
-            TagSerializer(tag).data for tag in instance.tags.all()
-        ]
-        representation['ingredients'] = [
-            RecipeIngredientGetSerializer(
-                recipeingredient
-            ).data for recipeingredient in instance.recipeingredient.all()
-        ]
-        return representation
+    def to_representation(self, recipe):
+        serializer = RecipeGetSerializer(recipe)
+        return serializer.data

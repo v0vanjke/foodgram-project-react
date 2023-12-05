@@ -1,10 +1,9 @@
-import django_filters
-from django.db.models import Q
-from django_filters import rest_framework
-from rest_framework import exceptions
 from django import forms
 
+import django_filters
+from django_filters import rest_framework
 from recipes.models import Ingredient, Recipe
+from rest_framework import exceptions
 
 VALUE = [0, 1]
 
@@ -25,7 +24,6 @@ class RecipeFilter(rest_framework.FilterSet):
     """
 
     tags = NonValidatingTagFilter(field_name='tags__slug')
-    author = django_filters.NumberFilter(field_name='author__id')
     is_favorited = django_filters.NumberFilter(
         method='filter_is_favorited',
         label='В избранном',
@@ -34,6 +32,10 @@ class RecipeFilter(rest_framework.FilterSet):
         method='filter_is_in_shopping_cart',
         label='В корзине покупок',
     )
+
+    class Meta:
+        model = Recipe
+        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
     def filter_is_favorited(self, queryset, name, value):
         if value not in VALUE:
@@ -57,21 +59,10 @@ class RecipeFilter(rest_framework.FilterSet):
             return queryset.filter(cart__user=self.request.user)
         return queryset
 
-    class Meta:
-        model = Recipe
-        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
-
-
-class IngredientNameFilter(django_filters.Filter):
-    def filter(self, queryset, value):
-        if value:
-            return queryset.filter(Q(name__istartswith=value))
-        return queryset
-
 
 class IngredientFilter(rest_framework.FilterSet):
-    name = IngredientNameFilter()
+    name = rest_framework.CharFilter(lookup_expr='istartswith')
 
     class Meta:
         model = Ingredient
-        fields = ('name',)
+        fields = ('name', )

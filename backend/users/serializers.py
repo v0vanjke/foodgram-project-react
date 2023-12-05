@@ -1,23 +1,13 @@
 from django.core.validators import RegexValidator
-from djoser.serializers import UserCreateSerializer
-from rest_framework import serializers
 
+from djoser.serializers import UserCreateSerializer
 from recipes.serializers import ShortRecipeSerializer
-from users.models import USERNAME_LENGTH, Follow, User
+from rest_framework import serializers
+from users.models import Follow, User
+from users.validators import validate_username
 
 
 class CreateUserSerializer(UserCreateSerializer):
-    username = serializers.CharField(
-        required=True,
-        max_length=USERNAME_LENGTH,
-        validators=[
-            RegexValidator(
-                regex=r'^[\w.@+-]+$',
-                message='Имя пользователя должно соответствовать '
-                        r'паттерну ^[\w.@+-]+\z.'
-            )
-        ]
-    )
 
     class Meta:
         model = User
@@ -30,11 +20,12 @@ class CreateUserSerializer(UserCreateSerializer):
             'password',
         )
 
+    def validate_username(self, value):
+        return validate_username(value)
+
 
 class UserSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField(
-        method_name='get_is_subscribed',
-    )
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -49,22 +40,43 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
+        if not request or request.user.is_anonymous:
             return False
         return Follow.objects.filter(user=request.user, author=obj).exists()
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    author = UserSerializer()
-    recipes = ShortRecipeSerializer(
-        many=True,
-        read_only=True,
-        source='author.recipes')
-    recipes_count = serializers.SerializerMethodField()
+    email = serializers.ReadOnlyField(source='author.email')
+    id = serializers.ReadOnlyField(source='author.id')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.ReadOnlyField(source='author.recipes.count')
 
     class Meta:
         model = Follow
-        fields = ('author', 'recipes', 'recipes_count')
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        recipes = obj.author.recipes.all()
+        if limit:
+            recipes = recipes[:int(limit)]
+        serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
+        return serializer.data
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if not user.is_anonymous:
+            return Follow.objects.filter(
+                user=obj.user,
+                author=obj.author
+            ).exists()
+        return False
 
     def validate(self, data):
         user = self.context['request'].user
@@ -78,29 +90,6 @@ class FollowSerializer(serializers.ModelSerializer):
                 {'errors': 'Вы уже подписаны на Автора'}
             )
         return data
-
-    def get_recipes_count(self, obj):
-        return obj.author.recipes.count()
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        request = self.root.context.get('request')
-        if request is not None:
-            count = request.query_params.get('recipes_limit')
-        else:
-            count = self.root.context.get('recipes_limit')
-        if count is not None:
-            representation['recipes'] = representation['recipes'][:int(count)]
-        return {
-            'email': representation['author']['email'],
-            'id': representation['author']['id'],
-            'username': representation['author']['username'],
-            'first_name': representation['author']['first_name'],
-            'last_name': representation['author']['last_name'],
-            'is_subscribed': representation['author']['is_subscribed'],
-            'recipes': representation['recipes'],
-            'recipes_count': representation['recipes_count'],
-        }
 
 
 class SetPasswordSerializer(serializers.Serializer):

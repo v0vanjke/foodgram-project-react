@@ -3,20 +3,20 @@ import io
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.paginations import CustomPagination
 from api.serializers import (IngredientSerializer, RecipeGetSerializer,
                              RecipePostSerializer, TagSerializer)
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Cart, Favorites, Ingredient, Recipe,
                             RecipeIngredient, Tag)
 from recipes.serializers import ShortRecipeSerializer
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from users.permissions import IsAuthorOrReadOnly
 
 
@@ -27,7 +27,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     а также возможностью выгрузить Список покупок.
     """
 
-    queryset = (Recipe.objects.all().order_by('-pub_date'))
+    queryset = Recipe.objects.order_by('-pub_date')
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = RecipeFilter
@@ -59,27 +59,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=('POST', 'DELETE'),
+        methods=('POST',),
         url_path='favorite',
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk):
-        if request.method == 'POST':
-            return self.add_to(Favorites, request.user, pk)
-        elif request.method == 'DELETE':
-            return self.remove_from(Favorites, request.user, pk)
+        return self.add_to(Favorites, request.user, pk)
+
+    @favorite.mapping.delete
+    def delete_from_favorite(self, request, pk):
+        return self.remove_from(Favorites, request.user, pk)
 
     @action(
         detail=True,
-        methods=('POST', 'DELETE'),
+        methods=('POST',),
         url_path='shopping_cart',
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk):
-        if request.method == 'POST':
-            return self.add_to(Cart, request.user, pk)
-        elif request.method == 'DELETE':
-            return self.remove_from(Cart, request.user, pk)
+        return self.add_to(Cart, request.user, pk)
+
+    @shopping_cart.mapping.delete
+    def delete_from_shopping_cart(self, request, pk):
+        return self.remove_from(Cart, request.user, pk)
 
     @action(
         detail=False,
@@ -109,13 +111,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = (Tag.objects.all().order_by('id'))
+    queryset = Tag.objects.order_by('id')
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = (Ingredient.objects.all().order_by('id'))
+    queryset = Ingredient.objects.order_by('id')
     serializer_class = IngredientSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = IngredientFilter

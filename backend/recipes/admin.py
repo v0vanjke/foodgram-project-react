@@ -13,6 +13,7 @@ class PaginatedAdminPanel(admin.ModelAdmin):
 class IngredientsInline(admin.TabularInline):
     model = RecipeIngredient
     extra = 0
+    min_num = 1
 
 
 @admin.register(User)
@@ -23,6 +24,7 @@ class UserAdmin(PaginatedAdminPanel):
         'first_name',
         'last_name',
         'count_recipes',
+        'count_followers',
         'role',
     )
     list_editable = ('role',)
@@ -30,10 +32,13 @@ class UserAdmin(PaginatedAdminPanel):
     list_display_links = ('username',)
     ordering = ('username',)
 
+    @admin.display(description='Количество рецептов')
     def count_recipes(self, obj):
         return obj.recipes.count()
 
-    count_recipes.short_description = 'Рецептов'
+    @admin.display(description='Количество подписчиков')
+    def count_followers(self, obj):
+        return obj.follow.count(author=obj)
 
 
 @admin.register(Recipe)
@@ -41,6 +46,8 @@ class RecipeAdmin(PaginatedAdminPanel):
     list_display = (
         'name',
         'author',
+        'get_ingredients',
+        'get_tags',
         'count_favorites',
         'pub_date',
     )
@@ -52,10 +59,15 @@ class RecipeAdmin(PaginatedAdminPanel):
     inlines = (IngredientsInline, )
     filter_horizontal = ('tags',)
 
+    @admin.display(description='Добавлений в Избранное')
     def count_favorites(self, obj):
         return obj.favorites.count()
 
-    count_favorites.short_description = 'Добавлений в Избранное'
+    def get_tags(self, obj):
+        return "\n".join([tag.recipe for tag in obj.tags.all()])
+
+    def get_ingredients(self, obj):
+        return "\n".join([ingredient.recipe for ingredient in obj.ingredients.all()])
 
 
 @admin.register(Ingredient)
@@ -73,7 +85,7 @@ class TagAdmin(PaginatedAdminPanel):
     list_display = (
         'name',
         'color',
-        'slug'
+        'slug',
     )
     search_fields = ('name',)
     ordering = ('name',)
