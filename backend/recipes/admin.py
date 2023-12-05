@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 
 from recipes.models import (Cart, Favorites, Ingredient, Recipe,
                             RecipeIngredient, RecipeTag, Tag)
-from users.models import User, Follow
+from users.models import Follow, User
 
 
 class PaginatedAdminPanel(admin.ModelAdmin):
@@ -38,7 +38,7 @@ class UserAdmin(PaginatedAdminPanel):
 
     @admin.display(description='Количество подписчиков')
     def count_followers(self, obj):
-        return obj.follow.count(author=obj)
+        return obj.subscribe.count()
 
 
 @admin.register(Recipe)
@@ -60,16 +60,16 @@ class RecipeAdmin(PaginatedAdminPanel):
     filter_horizontal = ('tags',)
 
     @admin.display(description='Добавлений в Избранное')
-    def count_favorites(self, obj):
-        return obj.favorites.count()
+    def count_favorites(self, recipe):
+        return recipe.favorites.count()
 
-    def get_tags(self, obj):
-        return "\n".join([tag.recipe for tag in obj.tags.all()])
+    @admin.display(description='Теги')
+    def get_tags(self, recipe):
+        return list(recipe.tags.only('name'))
 
-    def get_ingredients(self, obj):
-        return "\n".join(
-            [ingredient.recipe for ingredient in obj.ingredients.all()]
-        )
+    @admin.display(description='Ингредиенты')
+    def get_ingredients(self, recipe):
+        return list(recipe.recipeingredient.only('ingredient'))
 
 
 @admin.register(Ingredient)

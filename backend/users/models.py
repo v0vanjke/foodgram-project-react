@@ -9,12 +9,12 @@ class User(AbstractUser):
 
     username = models.CharField(
         verbose_name='Логин',
-        max_length=constants.MAX_USERNAME_LENGHT,
+        max_length=constants.MAX_USERNAME_LENGTH,
         unique=True,
     )
     password = models.CharField(
         verbose_name='Пароль',
-        max_length=constants.MAX_USER_PASSWORD_LENGHT,
+        max_length=constants.MAX_USER_PASSWORD_LENGTH,
     )
     email = models.EmailField(
         verbose_name='Электронная почта',
@@ -22,11 +22,11 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=constants.MAX_USER_FIRST_NAME_LENGHT,
+        max_length=constants.MAX_USER_FIRST_NAME_LENGTH,
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=constants.MAX_USER_LAST_NAME_LENGHT,
+        max_length=constants.MAX_USER_LAST_NAME_LENGTH,
     )
     role = models.CharField(
         verbose_name='Роль',
@@ -55,10 +55,16 @@ class User(AbstractUser):
 
 class Follow(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='subscriber',
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriber',
+        verbose_name='Пользователь',
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='subscribe',
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscribe',
+        verbose_name='Подписан на',
     )
 
     class Meta:
@@ -72,3 +78,5 @@ class Follow(models.Model):
                 name='author_isnt_user',
             ),
         ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'

@@ -1,4 +1,4 @@
-from django.core.validators import (MaxValueValidator, MinValueValidator)
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from colorfield.fields import ColorField
@@ -9,7 +9,7 @@ from users.models import User
 class Tag(models.Model):
     name = models.CharField(
         verbose_name='Название',
-        max_length=constants.MAX_TAG_NAME_LENGHT,
+        max_length=constants.MAX_TAG_NAME_LENGTH,
         unique=True,
     )
     color = ColorField(
@@ -18,7 +18,7 @@ class Tag(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Слаг',
-        max_length=constants.MAX_TAG_SLUG_LENGHT,
+        max_length=constants.MAX_TAG_SLUG_LENGTH,
         blank=True,
         unique=True,
     )
@@ -34,11 +34,11 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Ингредиент',
-        max_length=constants.MAX_INGREDIENT_NAME_LENGHT,
+        max_length=constants.MAX_INGREDIENT_NAME_LENGTH,
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
-        max_length=constants.MAX_INGREDIENT_MEASUREMENT_UNIT_LENGHT,
+        max_length=constants.MAX_INGREDIENT_MEASUREMENT_UNIT_LENGTH,
     )
 
     class Meta:
@@ -58,11 +58,11 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     name = models.CharField(
         verbose_name='Название',
-        max_length=constants.MAX_RECIPE_NAME_LENGHT,
+        max_length=constants.MAX_RECIPE_NAME_LENGTH,
     )
     text = models.TextField(
         verbose_name='Описание',
-        max_length=constants.MAX_RECIPE_TEXT_LENGHT,
+        max_length=constants.MAX_RECIPE_TEXT_LENGTH,
     )
     image = models.ImageField(
         verbose_name='Изображение',
@@ -129,6 +129,9 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецептов'
+
+    def __str__(self):
+        return self.ingredient.name
 
 
 class RecipeTag(models.Model):
