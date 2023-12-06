@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 
 from recipes.models import (Cart, Favorites, Ingredient, Recipe,
-                            RecipeIngredient, RecipeTag, Tag)
+                            RecipeIngredient, Tag)
 from users.models import Follow, User
 
 
@@ -56,7 +56,7 @@ class RecipeAdmin(PaginatedAdminPanel):
     list_filter = ('tags',)
     list_display_links = ('name',)
     ordering = ('pub_date',)
-    inlines = (IngredientsInline, )
+    inlines = (IngredientsInline,)
     filter_horizontal = ('tags',)
 
     @admin.display(description='Добавлений в Избранное')
@@ -112,16 +112,6 @@ class RecipeIngredientAdmin(PaginatedAdminPanel):
     )
     search_fields = ('recipe__name',)
     ordering = ('recipe__pub_date',)
-
-
-@admin.register(RecipeTag)
-class RecipeTagAdmin(PaginatedAdminPanel):
-    list_display = (
-        'recipe',
-        'tag',
-    )
-    search_fields = ('recipe__name', 'tag__name')
-    ordering = ('recipe__name',)
 
 
 @admin.register(Cart)
