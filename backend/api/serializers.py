@@ -110,7 +110,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     cooking_time = serializers.IntegerField(
         validators=(
             MinValueValidator(
-                limit_value=1,
+                limit_value=MIN_COOKING_TIME_VALUE,
                 message='Время приготовления не может быть меньше 0 минут',
             ),
         )
@@ -154,7 +154,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
             )
         if len(tags) != len(set(tags)):
             raise exceptions.ValidationError(
-                'Вы указали один и тот же Ингредиент несколько раз'
+                'Вы указали один и тот же Тег несколько раз'
             )
         return tags
 

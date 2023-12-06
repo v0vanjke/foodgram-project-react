@@ -52,7 +52,7 @@ class RecipeAdmin(PaginatedAdminPanel):
         'pub_date',
     )
     fields = ('name', 'text', 'image', 'cooking_time', 'author', 'tags')
-    search_fields = ('author', 'name')
+    search_fields = ('author__username', 'name')
     list_filter = ('tags',)
     list_display_links = ('name',)
     ordering = ('pub_date',)
@@ -99,8 +99,8 @@ class FavoritesAdmin(PaginatedAdminPanel):
         'recipe',
         'user',
     )
-    search_fields = ('user',)
-    ordering = ('user',)
+    search_fields = ('user__username','recipe__name')
+    ordering = ('user__username',)
 
 
 @admin.register(RecipeIngredient)
@@ -110,8 +110,8 @@ class RecipeIngredientAdmin(PaginatedAdminPanel):
         'ingredient',
         'amount',
     )
-    search_fields = ('recipe',)
-    ordering = ('recipe',)
+    search_fields = ('recipe__name',)
+    ordering = ('recipe__pub_date',)
 
 
 @admin.register(RecipeTag)
@@ -120,8 +120,8 @@ class RecipeTagAdmin(PaginatedAdminPanel):
         'recipe',
         'tag',
     )
-    search_fields = ('recipe',)
-    ordering = ('recipe',)
+    search_fields = ('recipe__name', 'tag__name')
+    ordering = ('recipe__name',)
 
 
 @admin.register(Cart)
@@ -130,8 +130,8 @@ class CartAdmin(PaginatedAdminPanel):
         'user',
         'recipe',
     )
-    search_fields = ('user',)
-    ordering = ('user',)
+    search_fields = ('user__username',)
+    ordering = ('user__username',)
 
 
 @admin.register(Follow)
@@ -140,8 +140,8 @@ class FollowAdmin(PaginatedAdminPanel):
         'user',
         'author',
     )
-    search_fields = ('user',)
-    ordering = ('user',)
+    search_fields = ('user__username',)
+    ordering = ('user__username',)
 
 
 admin.site.unregister(Group)
