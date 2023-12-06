@@ -101,7 +101,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientPostSerializer(
         many=True,
         source='recipeingredient',
-    )
+        )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
@@ -110,7 +110,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     cooking_time = serializers.IntegerField(
         validators=(
             MinValueValidator(
-                limit_value=MIN_COOKING_TIME_VALUE,
+                limit_value=1,
                 message='Время приготовления не может быть меньше 0 минут',
             ),
         )
@@ -145,14 +145,6 @@ class RecipePostSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError(
                 'Вы указали один и тот же Ингредиент несколько раз'
             )
-        current_amounts = [
-            ingredient.get('amount') for ingredient in ingredients
-        ]
-        for amount in current_amounts:
-            if amount <= 0:
-                raise exceptions.ValidationError(
-                    'Количество игредиентов должно быть больше 0'
-                )
         return ingredients
 
     def validate_tags(self, tags):
