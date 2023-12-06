@@ -99,7 +99,7 @@ class FavoritesAdmin(PaginatedAdminPanel):
         'recipe',
         'user',
     )
-    search_fields = ('user__username','recipe__name')
+    search_fields = ('user__username', 'recipe__name')
     ordering = ('user__username',)
 
 
