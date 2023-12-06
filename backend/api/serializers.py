@@ -101,7 +101,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientPostSerializer(
         many=True,
         source='recipeingredient',
-        )
+    )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
